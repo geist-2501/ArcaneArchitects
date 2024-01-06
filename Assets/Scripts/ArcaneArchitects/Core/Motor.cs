@@ -1,4 +1,5 @@
 using System;
+using ArcaneArchitects.Input;
 using UnityEngine;
 
 namespace ArcaneArchitects.Core
@@ -7,20 +8,9 @@ namespace ArcaneArchitects.Core
     public class Motor : MonoBehaviour
     {
         private Rigidbody m_Rigidbody;
-        private Vector3 m_MovementDir;
-        private Vector3 m_LookDir;
-        
+
+        [SerializeField] private PlayerController controller;
         [SerializeField] private float movementSpeed;
-
-        public Vector2 MovementDir
-        {
-            set => m_MovementDir = ToPlanarVector3(value);
-        }
-
-        public Vector2 LookDir
-        {
-            set => m_LookDir = ToPlanarVector3(value);
-        }
 
         private void Awake()
         {
@@ -29,19 +19,23 @@ namespace ArcaneArchitects.Core
 
         private void Update()
         {
-            var position = transform.position;
-            Debug.DrawLine(position, position + m_LookDir, Color.cyan);
-            Debug.DrawLine(position, position + m_MovementDir, Color.blue);
+            var lookDir = ToTopDownVector3(controller.LookDir);
+            var movementDir = ToTopDownVector3(controller.MovementDir);
 
-            if (m_LookDir != Vector3.zero)
+            var position = transform.position;
+            Debug.DrawLine(position, position + lookDir, Color.cyan);
+            Debug.DrawLine(position, position + movementDir, Color.blue);
+
+            if (lookDir != Vector3.zero)
             {
-                transform.rotation = Quaternion.LookRotation(m_LookDir);
+                transform.rotation = Quaternion.LookRotation(lookDir);
             }
         }
 
         private void FixedUpdate()
         {
-            MoveMotor(transform.position + m_MovementDir * (Time.fixedDeltaTime * movementSpeed));
+            var movementDir = ToTopDownVector3(controller.MovementDir);
+            MoveMotor(transform.position + movementDir * (Time.fixedDeltaTime * movementSpeed));
         }
         
         private void MoveMotor(Vector3 position)
@@ -55,7 +49,7 @@ namespace ArcaneArchitects.Core
             m_Rigidbody.velocity = velocity;
         }
         
-        private static Vector3 ToPlanarVector3(Vector2 vector)
+        private static Vector3 ToTopDownVector3(Vector2 vector)
         {
             return new Vector3(vector.x, 0, vector.y);
         }

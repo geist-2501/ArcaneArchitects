@@ -24,7 +24,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     ""name"": ""InputActions"",
     ""maps"": [
         {
-            ""name"": ""Default"",
+            ""name"": ""Playing"",
             ""id"": ""5fb1b83f-a454-45d9-9e3b-4037fd6e4479"",
             ""actions"": [
                 {
@@ -114,14 +114,45 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Building"",
+            ""id"": ""32c09e32-84c3-4947-b4da-32e6429752a3"",
+            ""actions"": [
+                {
+                    ""name"": ""Cursor"",
+                    ""type"": ""Value"",
+                    ""id"": ""a032cb88-9ae1-4b02-ac25-abb6ac0fd596"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""999d864f-cc65-4fa9-b718-02ea8fc2b7c6"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cursor"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
 }");
-        // Default
-        m_Default = asset.FindActionMap("Default", throwIfNotFound: true);
-        m_Default_Move = m_Default.FindAction("Move", throwIfNotFound: true);
-        m_Default_Look = m_Default.FindAction("Look", throwIfNotFound: true);
+        // Playing
+        m_Playing = asset.FindActionMap("Playing", throwIfNotFound: true);
+        m_Playing_Move = m_Playing.FindAction("Move", throwIfNotFound: true);
+        m_Playing_Look = m_Playing.FindAction("Look", throwIfNotFound: true);
+        // Building
+        m_Building = asset.FindActionMap("Building", throwIfNotFound: true);
+        m_Building_Cursor = m_Building.FindAction("Cursor", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -180,26 +211,26 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         return asset.FindBinding(bindingMask, out action);
     }
 
-    // Default
-    private readonly InputActionMap m_Default;
-    private List<IDefaultActions> m_DefaultActionsCallbackInterfaces = new List<IDefaultActions>();
-    private readonly InputAction m_Default_Move;
-    private readonly InputAction m_Default_Look;
-    public struct DefaultActions
+    // Playing
+    private readonly InputActionMap m_Playing;
+    private List<IPlayingActions> m_PlayingActionsCallbackInterfaces = new List<IPlayingActions>();
+    private readonly InputAction m_Playing_Move;
+    private readonly InputAction m_Playing_Look;
+    public struct PlayingActions
     {
         private @InputActions m_Wrapper;
-        public DefaultActions(@InputActions wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Move => m_Wrapper.m_Default_Move;
-        public InputAction @Look => m_Wrapper.m_Default_Look;
-        public InputActionMap Get() { return m_Wrapper.m_Default; }
+        public PlayingActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Move => m_Wrapper.m_Playing_Move;
+        public InputAction @Look => m_Wrapper.m_Playing_Look;
+        public InputActionMap Get() { return m_Wrapper.m_Playing; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
         public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(DefaultActions set) { return set.Get(); }
-        public void AddCallbacks(IDefaultActions instance)
+        public static implicit operator InputActionMap(PlayingActions set) { return set.Get(); }
+        public void AddCallbacks(IPlayingActions instance)
         {
-            if (instance == null || m_Wrapper.m_DefaultActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_DefaultActionsCallbackInterfaces.Add(instance);
+            if (instance == null || m_Wrapper.m_PlayingActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_PlayingActionsCallbackInterfaces.Add(instance);
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
@@ -208,7 +239,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Look.canceled += instance.OnLook;
         }
 
-        private void UnregisterCallbacks(IDefaultActions instance)
+        private void UnregisterCallbacks(IPlayingActions instance)
         {
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
@@ -218,24 +249,74 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Look.canceled -= instance.OnLook;
         }
 
-        public void RemoveCallbacks(IDefaultActions instance)
+        public void RemoveCallbacks(IPlayingActions instance)
         {
-            if (m_Wrapper.m_DefaultActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_PlayingActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
-        public void SetCallbacks(IDefaultActions instance)
+        public void SetCallbacks(IPlayingActions instance)
         {
-            foreach (var item in m_Wrapper.m_DefaultActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_PlayingActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_DefaultActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_PlayingActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
-    public DefaultActions @Default => new DefaultActions(this);
-    public interface IDefaultActions
+    public PlayingActions @Playing => new PlayingActions(this);
+
+    // Building
+    private readonly InputActionMap m_Building;
+    private List<IBuildingActions> m_BuildingActionsCallbackInterfaces = new List<IBuildingActions>();
+    private readonly InputAction m_Building_Cursor;
+    public struct BuildingActions
+    {
+        private @InputActions m_Wrapper;
+        public BuildingActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Cursor => m_Wrapper.m_Building_Cursor;
+        public InputActionMap Get() { return m_Wrapper.m_Building; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(BuildingActions set) { return set.Get(); }
+        public void AddCallbacks(IBuildingActions instance)
+        {
+            if (instance == null || m_Wrapper.m_BuildingActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_BuildingActionsCallbackInterfaces.Add(instance);
+            @Cursor.started += instance.OnCursor;
+            @Cursor.performed += instance.OnCursor;
+            @Cursor.canceled += instance.OnCursor;
+        }
+
+        private void UnregisterCallbacks(IBuildingActions instance)
+        {
+            @Cursor.started -= instance.OnCursor;
+            @Cursor.performed -= instance.OnCursor;
+            @Cursor.canceled -= instance.OnCursor;
+        }
+
+        public void RemoveCallbacks(IBuildingActions instance)
+        {
+            if (m_Wrapper.m_BuildingActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IBuildingActions instance)
+        {
+            foreach (var item in m_Wrapper.m_BuildingActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_BuildingActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public BuildingActions @Building => new BuildingActions(this);
+    public interface IPlayingActions
     {
         void OnMove(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
+    }
+    public interface IBuildingActions
+    {
+        void OnCursor(InputAction.CallbackContext context);
     }
 }
