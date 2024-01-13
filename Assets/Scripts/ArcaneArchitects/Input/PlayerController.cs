@@ -1,5 +1,4 @@
 using System;
-using ArcaneArchitects.Core;
 using UnityEngine;
 
 namespace ArcaneArchitects.Input
@@ -11,6 +10,8 @@ namespace ArcaneArchitects.Input
         public Vector2 LookDir { get; private set; }
         public Vector2 MovementDir { get; private set; }
         public Vector2 CursorPos { get; private set; }
+        public ButtonFlag Interact { get; } = new();
+        public ButtonFlag Remove { get; } = new();
         
         private InputActions m_Input;
         
@@ -29,6 +30,10 @@ namespace ArcaneArchitects.Input
 
             var rawMoveInput = m_Input.Playing.Move.ReadValue<Vector2>();
             MovementDir = rawMoveInput;
+
+            CursorPos = m_Input.Building.Cursor.ReadValue<Vector2>();
+            Interact.IsDown = m_Input.Building.Interact.WasPressedThisFrame();
+            Remove.IsDown = m_Input.Building.Remove.WasPressedThisFrame();
         }
 
         private void OnEnable()

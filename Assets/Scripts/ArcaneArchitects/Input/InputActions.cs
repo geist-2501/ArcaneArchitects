@@ -127,6 +127,24 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""fce97232-91cc-45f0-9537-2850330851a5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Remove"",
+                    ""type"": ""Button"",
+                    ""id"": ""c8adc2f2-3cb0-41ca-9196-7f081119c82f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -138,6 +156,28 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Cursor"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8b2e6a20-0c6f-4a92-93d8-18c3f217f19f"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""89ce3503-6110-456e-bed5-6eedb533fe52"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Remove"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -153,6 +193,8 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         // Building
         m_Building = asset.FindActionMap("Building", throwIfNotFound: true);
         m_Building_Cursor = m_Building.FindAction("Cursor", throwIfNotFound: true);
+        m_Building_Interact = m_Building.FindAction("Interact", throwIfNotFound: true);
+        m_Building_Remove = m_Building.FindAction("Remove", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -269,11 +311,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Building;
     private List<IBuildingActions> m_BuildingActionsCallbackInterfaces = new List<IBuildingActions>();
     private readonly InputAction m_Building_Cursor;
+    private readonly InputAction m_Building_Interact;
+    private readonly InputAction m_Building_Remove;
     public struct BuildingActions
     {
         private @InputActions m_Wrapper;
         public BuildingActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Cursor => m_Wrapper.m_Building_Cursor;
+        public InputAction @Interact => m_Wrapper.m_Building_Interact;
+        public InputAction @Remove => m_Wrapper.m_Building_Remove;
         public InputActionMap Get() { return m_Wrapper.m_Building; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -286,6 +332,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Cursor.started += instance.OnCursor;
             @Cursor.performed += instance.OnCursor;
             @Cursor.canceled += instance.OnCursor;
+            @Interact.started += instance.OnInteract;
+            @Interact.performed += instance.OnInteract;
+            @Interact.canceled += instance.OnInteract;
+            @Remove.started += instance.OnRemove;
+            @Remove.performed += instance.OnRemove;
+            @Remove.canceled += instance.OnRemove;
         }
 
         private void UnregisterCallbacks(IBuildingActions instance)
@@ -293,6 +345,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Cursor.started -= instance.OnCursor;
             @Cursor.performed -= instance.OnCursor;
             @Cursor.canceled -= instance.OnCursor;
+            @Interact.started -= instance.OnInteract;
+            @Interact.performed -= instance.OnInteract;
+            @Interact.canceled -= instance.OnInteract;
+            @Remove.started -= instance.OnRemove;
+            @Remove.performed -= instance.OnRemove;
+            @Remove.canceled -= instance.OnRemove;
         }
 
         public void RemoveCallbacks(IBuildingActions instance)
@@ -318,5 +376,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     public interface IBuildingActions
     {
         void OnCursor(InputAction.CallbackContext context);
+        void OnInteract(InputAction.CallbackContext context);
+        void OnRemove(InputAction.CallbackContext context);
     }
 }
